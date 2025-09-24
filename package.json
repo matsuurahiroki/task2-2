@@ -1,0 +1,7 @@
+{
+  "description": "",
+  "devDependencies": {
+    "@types/jquery": "^3.5.33",
+    "typescript": "^5.9.2"
+  }
+}
