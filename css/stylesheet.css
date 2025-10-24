@@ -8,33 +8,31 @@
   padding: 80px;
 }
 
-.timer {
-  padding-top: 30px;
-  font-size: 60px;
+:root {
+  font-family: system-ui, sans-serif;
 }
 
-.button {
-  padding-top: 30px;
-  display: flex;
+.calc {
+  width: 260px;
+  margin: 24px auto;
 }
 
-.start-button {
-  width: 100px;
-  height: 50px;
-  font-size: 20px;
+.display {
+  width: 100%;
+  font-size: 28px;
+  text-align: right;
+  padding: 10px;
+  box-sizing: border-box;
+  margin-bottom: 8px;
 }
 
-.stop-button {
-  width: 100px;
-  height: 50px;
-  margin: 0 30px;
-  font-size: 20px;
+.keys {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
 }
 
-.reset-button {
-  width: 100px;
-  height: 50px;
-  font-size: 20px;
+.keys button {
+  padding: 12px;
+  font-size: 18px;
 }
-
-/*# sourceMappingURL=stylesheet.css.map */

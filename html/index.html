@@ -10,22 +10,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script type="module" src="../js/script.js"></script>
-  <title>ストップウォッチ</title>
+  <title>電卓</title>
 </head>
 
 <body>
   <main>
-    <div class="main-container">
-      <div class="title">
-        <h1>ストップウォッチ</h1>
-      </div><!-- /.title-container -->
-      <div class="timer"></div><!-- /.timer -->
-      <div class="button">
-        <button class="start-button">スタート</button><!-- /.start-button -->
-        <button class="stop-button">ストップ</button><!-- /.start-button -->
-        <button class="reset-button">リセット</button><!-- /.start-button -->
-      </div><!-- /.button -->
-    </div><!-- /.main-container -->
+    <div class="calc">
+      <input class="display" readonly value="0" />
+      <div class="keys">
+
+        <button data-val="7">7</button>
+        <button data-val="8">8</button>
+        <button data-val="9">9</button>
+        <button data-op="*">x</button>
+
+        <button data-val="4">4</button>
+        <button data-val="5">5</button>
+        <button data-val="6">6</button>
+        <button data-op="-">-</button>
+
+        <button data-val="1">1</button>
+        <button data-val="2">2</button>
+        <button data-val="3">3</button>
+        <button data-op="+">+</button>
+        <button data-act="ac">AC</button>
+        <button data-act="ce">C</button>
+        <button data-act="bs">⌫</button>
+        <button data-op="/">÷</button>
+        <button data-val="0">0</button>
+        <button data-val="00">00</button>
+        <button data-act="dot">.</button>
+        <button data-act="eq">=</button>
+      </div>
+    </div>
   </main>
 </body>
 

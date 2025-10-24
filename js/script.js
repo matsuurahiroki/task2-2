@@ -1,62 +1,129 @@
-/// <reference types="jquery" />
-$(function () {
-    let timer_c = 0; // 1/100秒
-    let timer_s = 0; // 秒
-    let timer_m = 0; // 分
-    let intervalId = null;
-    let running = false;
-    // タイマー自体
-    const render = () => {
-        const cs = String(timer_c).padStart(2, "0");
-        const ss = String(timer_s).padStart(2, "0");
-        const mm = String(timer_m).padStart(2, "0");
-        $(".timer").text(`${mm}:${ss}.${cs}`);
-    };
-    // タイマーの数字
-    const tick = () => {
-        timer_c++;
-        if (timer_c === 100) {
-            timer_c = 0;
-            timer_s++;
+(() => {
+  let cur = "0"; // 画面の現在入力、つなげるのでstring型
+  let prev = null; // 直前の値（number | null）
+  let op = null; // "+", "-", "*", "/", または null
+  let justEq = false; // 直前に=したか
+
+  const show = (s) => (document.querySelector(".display").value = s); // htmlのvalueをsに変換
+  const toNum = (s) => Number(s || "0"); // 文字をNumメソッドで数字に変換
+  const trim = (n) => Number(n.toFixed(12)); // 小数点を切り捨て
+
+  function inputDigit(d) {
+    if (justEq) {
+      cur = "0";
+      justEq = false;
+    } // ＝で結果を出した後、1から計算するように更新
+
+    if (cur === "0") cur = d;
+    else if (cur === "-0") cur = "-" + d;
+    else cur += d;
+    show(cur);
+    // 電卓全体の動作
+  }
+
+  function inputDot() {
+    if (justEq) {
+      cur = "0";
+      justEq = false;
+    }
+
+    if (!cur.includes(".")) cur += ".";
+    show(cur);
+    // 小数点が含まれてない時に小数点を追加、一度に二度小数点を入力することは不可
+  }
+
+  function setOp(symbol) {
+    if (op && prev !== null && !justEq) evaluate(); // 四則演算子が１つ以上ある場合に事前にprevの中に数字を格納する
+    prev = toNum(cur);
+    op = symbol;
+    cur = "0";
+    justEq = false;
+    // 前回の数字を記録し、inputを0に戻す。次の数字入力に移行
+  }
+
+  function evaluate() {
+    if (op === null || prev === null) return;
+    const a = prev,
+      b = toNum(cur);
+    let res;
+    switch (op) {
+      case "+":
+        res = a + b;
+        break;
+      case "-":
+        res = a - b;
+        break;
+      case "*":
+        res = a * b;
+        break;
+      case "/":
+        if (b === 0) {
+          show("Error");
+          resetAll();
+          justEq = true;
+          return;
         }
-        if (timer_s === 60) {
-            timer_s = 0;
-            timer_m++;
-        }
-        render();
-    };
-    // タイマー表示
-    render();
-    // ボタン
-    $(".start-button").on("click", () => {
-        if (!running) {
-            running = true;
-            intervalId = setInterval(tick, 10); // 10msごとに更新
-            $(".start-button").prop("disabled", true).css("opacity", "0.5");
-        }
-        else
-            return;
-    });
-    $(".stop-button").on("click", () => {
-        if (running && intervalId !== null) {
-            running = false;
-            clearInterval(intervalId);
-            intervalId = null;
-            $(".start-button").prop("disabled", false).css("opacity", "1");
-        }
-        else
-            return;
-    });
-    $(".reset-button").on("click", () => {
-        if (intervalId !== null) {
-            clearInterval(intervalId);
-            intervalId = null;
-        }
-        running = false;
-        timer_m = timer_s = timer_c = 0;
-        $(".start-button").prop("disabled", false).css("opacity", "1");
-        render();
-    });
-});
-export {};
-//# sourceMappingURL=script.js.map
+        res = a / b;
+        break;
+    }
+    // 四則演算子によって効果を変える
+    cur = String(trim(res));
+    prev = null;
+    op = null;
+    justEq = true;
+    show(cur);
+    // =で結果を出した時に値をjustEq以外リセットする、justEqをtrueにしているのは結果を表示している時に別の計算をしたい時に0に戻すため
+  }
+
+  function clearEntry() {
+    cur = "0";
+    show(cur);
+    // 文字リセット
+  }
+  function resetAll() {
+    cur = "0";
+    prev = null;
+    op = null;
+    justEq = false;
+    show(cur);
+    // 値を全部リセット
+  }
+
+  function backspace() {
+    if (justEq) return;
+    if (cur.length <= 1 || cur === "-0") cur = "0"; //数字が一文字か負符号の場合、0に戻す
+    else cur = cur.slice(0, -1); //0番めから末端から-1文字めまでを取得、実質一文字削除
+    show(cur);
+  }
+
+  // クリック（イベント委譲）
+  document.querySelector(".keys").addEventListener("click", (e) => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+
+    const v = btn.dataset.val;
+    const a = btn.dataset.act;
+    const o = btn.dataset.op;
+
+    if (v !== undefined) return inputDigit(String(v)); // 入力の値が数字だった場合のロジック
+    if (a === "dot") return inputDot(); // ドットのロジック
+    if (a === "eq") return evaluate(); // =の計算のロジック
+    if (a === "ac") return resetAll(); //全リセット時のロジック
+    if (a === "ce") return clearEntry(); // その時点の数字のみリセットのロジック
+    if (a === "bs") return backspace(); // 一文字のみ消したい時のロジック
+    if (o) return setOp(o); // 四則演算子を押した時のロジック
+  });
+
+  // pcのキーボード対応のロジック
+  document.addEventListener("keydown", (e) => {
+    const k = e.key;
+    if (/\d/.test(k)) return inputDigit(k); //数字かチェック
+    if (k === ".") return inputDot(); // ドットのロジック
+    if (k === "Enter" || k === "=") return evaluate();  // =の計算のロジック
+    if (k === "Escape") return resetAll(); //全リセット時のロジック
+    if (k === "Backspace") return backspace(); // 一文字のみ消したい時のロジック
+    if (["+", "-", "*", "/"].includes(k)) return setOp(k); // 四則演算子を押した時のロジック
+  });
+
+  show(cur); // 画面表示
+})();
