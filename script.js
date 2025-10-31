@@ -17,7 +17,14 @@
     if (cur === "0") cur = d;
     else if (cur === "-0") cur = "-" + d;
     else cur += d;
-    show(cur);
+
+    if (op && prev !== null && cur === "0") {
+      show(`${prev}${op}`);
+    } else if (op && prev !== null) {
+      show(`${prev}${op}${cur}`);
+    } else {
+      show(`${cur}`);
+    }
     // 電卓全体の動作
   }
 
@@ -38,6 +45,14 @@
     op = symbol;
     cur = "0";
     justEq = false;
+
+    if (op && prev !== null && cur === "0") {
+      show(`${prev}${op}`);
+    } else if (op && prev !== null) {
+      show(`${prev}${op}${cur}`);
+    } else {
+      show(`${cur}`);
+    }
     // 前回の数字を記録し、inputを0に戻す。次の数字入力に移行
   }
 
@@ -71,13 +86,25 @@
     prev = null;
     op = null;
     justEq = true;
-    show(cur);
-    // =で結果を出した時に値をjustEq以外リセットする、justEqをtrueにしているのは結果を表示している時に別の計算をしたい時に0に戻すため
+    if (op && prev !== null && cur === "0") {
+      show(`${prev}${op}`);
+    } else if (op && prev !== null) {
+      show(`${prev}${op}${cur}`);
+    } else {
+      show(`${cur}`);
+    }
+    // =で結果を出した時に値をjustEq以外リセットする、justEqをtrueにしているのは結果を表示している時に別の計算をしたい時に0に戻す
   }
 
   function clearEntry() {
     cur = "0";
-    show(cur);
+    if (op && prev !== null && cur === "0") {
+      show(`${prev}${op}`);
+    } else if (op && prev !== null) {
+      show(`${prev}${op}${cur}`);
+    } else {
+      show(`${cur}`);
+    }
     // 文字リセット
   }
   function resetAll() {
@@ -85,15 +112,26 @@
     prev = null;
     op = null;
     justEq = false;
-    show(cur);
+    if (op && prev !== null && cur === "0") {
+      show(`${prev}${op}`);
+    } else if (op && prev !== null) {
+      show(`${prev}${op}${cur}`);
+    } else {
+      show(`${cur}`);
+    }
     // 値を全部リセット
   }
 
   function backspace() {
     if (justEq) return;
-    if (cur.length <= 1 || cur === "-0") cur = "0"; //数字が一文字か負符号の場合、0に戻す
+    if (cur.length <= 1 || cur === "-0")
+      cur = "0"; //数字が一文字か負符号の場合、0に戻す
     else cur = cur.slice(0, -1); //0番めから末端から-1文字めまでを取得、実質一文字削除
-    show(cur);
+    if (op && prev !== null) {
+      show(`${prev}${op}${cur}`);
+    } else {
+      show(`${cur}`);
+    }
   }
 
   // クリック（イベント委譲）
@@ -119,11 +157,15 @@
     const k = e.key;
     if (/\d/.test(k)) return inputDigit(k); //数字かチェック
     if (k === ".") return inputDot(); // ドットのロジック
-    if (k === "Enter" || k === "=") return evaluate();  // =の計算のロジック
+    if (k === "Enter" || k === "=") return evaluate(); // =の計算のロジック
     if (k === "Escape") return resetAll(); //全リセット時のロジック
     if (k === "Backspace") return backspace(); // 一文字のみ消したい時のロジック
     if (["+", "-", "*", "/"].includes(k)) return setOp(k); // 四則演算子を押した時のロジック
   });
 
-  show(cur); // 画面表示
+  if (op && prev !== null) {
+    show(`${prev}${op}${cur}`);
+  } else {
+    show(`${cur}`);
+  } // 画面表示
 })();
