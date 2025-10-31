@@ -127,7 +127,9 @@
     if (cur.length <= 1 || cur === "-0")
       cur = "0"; //数字が一文字か負符号の場合、0に戻す
     else cur = cur.slice(0, -1); //0番めから末端から-1文字めまでを取得、実質一文字削除
-    if (op && prev !== null) {
+    if (op && prev !== null && cur === "0") {
+      show(`${prev}${op}`);
+    } else if (op && prev !== null) {
       show(`${prev}${op}${cur}`);
     } else {
       show(`${cur}`);
